@@ -3,10 +3,10 @@
 #
 # url: http://localhost:4000
 # baseurl: ""
-url: http://qckanemoto.github.io
-baseurl: /jekyll-qck-theme
-title: Your name
-description: Some descriptions of yourself.
+url: http://georgezhuo.github.io
+baseurl: /georgezhuo.github.io
+title: Phycles
+description: Say nothing, do nothing, be nothing
 avatar: /assets/img/ogp.png
 # language: ja
 language: en
@@ -17,9 +17,9 @@ language: en
 icons:
   rss: true
   email:
-  github: qckanemoto
+  github: georgezhuo
   bitbucket:
-  twitter: qckanemoto
+  twitter:
   facebook:
   google_plus:
   tumblr:
