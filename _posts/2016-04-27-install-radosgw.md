@@ -14,13 +14,8 @@ Ubuntu 14.04 (Debian)
 ![ceph](http://docs.ceph.com/docs/master/install/install-ceph-gateway/)
 ``` 
 
-由于Apache的版本不同，配置FASTCGI的时候是不一样的，所以需要注意一下。  
-在某些版本安装Apache2.4(如 RHEL 7, CentOS 7, 或者Ubuntu 14.04 Trusty)  
-这些版本的Linux系统，mod_proxy_fcgi是已经有的。所以当安装了Apache  
-或者httpd(RPM-based), mod_proxy_fcgi 就已经可以使用的了。  
-而在Apache2.2版本的中(如 RHEL 6， CentOS 6，Ubuntu 12.04 Precise)  
-mod_proxy_fcgi 是另外的安装包，在 RHEL6/CentOS6, 在EPEL6 版本中  
-可以使用 yum install mod_proxy_fcgi. Ubuntu 12.04, 似乎又问题。  
+由于Apache的版本不同，配置FASTCGI的时候是不一样的，所以需要注意一下。在某些版本安装Apache2.4(如 RHEL 7, CentOS 7, 或者Ubuntu 14.04 Trusty) 这些版本的Linux系统，mod_proxy_fcgi是已经有的。所以当安装了Apache或者httpd(RPM-based), mod_proxy_fcgi 就已经可以使用的了。而在Apache2.2版本的中(如 RHEL 6， CentOS 6，Ubuntu 12.04 Precise) mod_proxy_fcgi 是另外的安装包，在 RHEL6/CentOS6, 在EPEL6 版本中  可以使用 yum install mod_proxy_fcgi. Ubuntu 12.04, 似乎又问题。
+
 ![详情见](https://bugs.launchpad.net/precise-backports/+bug/1422417)
 
 ## 安装Apache
@@ -225,10 +220,12 @@ ProxyPass / unix:///var/run/ceph/ceph.radosgw.gateway.fastcgi.sock|fcgi://localh
 ### 为S3访问创建网关用户　
 　
 在网关主机上执行如下命令:  
+
 ```
 sudo radosgw-admin user create --uid="testuser" --display-name="First User"
 ```
 输出的结果如下：
+
 ```
 {"user_id": "testuser",
 "display_name": "First User",
@@ -253,7 +250,9 @@ sudo radosgw-admin user create --uid="testuser" --display-name="First User"
 "max_size_kb": -1,
 "max_objects": -1},
 "temp_url_keys": []}
+
 ```
+
 其中access_key和secret_key需要用来访问S3.
 
 ### 测试S3访问
@@ -305,10 +304,7 @@ ceph.conf 和keyring文件, 而且都要有可读的权限。
 真的有加入认证列表中. 用如下命令查看:  
 **sudo ceph auth list **
 
-结果应该要有 client.radsogw.gateway。
-```
-
-```
+结果应该要有 client.radsogw.gateway
 
 
 ### S3测试返回错误
@@ -333,8 +329,6 @@ ceph.conf 和keyring文件, 而且都要有可读的权限。
 Apache和mod_proxy_fcgi是不是都是正常，curl {gateway hostname}，  
 如果是如下的情况, 说明正常。
 
-```
-```
 如果不是可能是配置rgw.conf， 端口不是80, 会出现这种情况。
 
 ## 参考
