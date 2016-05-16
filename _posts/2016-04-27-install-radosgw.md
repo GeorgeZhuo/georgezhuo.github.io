@@ -16,7 +16,7 @@ Ubuntu 14.04 (Debian)
 
 由于Apache的版本不同，配置FASTCGI的时候是不一样的，所以需要注意一下。在某些版本安装Apache2.4(如 RHEL 7, CentOS 7, 或者Ubuntu 14.04 Trusty) 这些版本的Linux系统，mod_proxy_fcgi是已经有的。所以当安装了Apache或者httpd(RPM-based), mod_proxy_fcgi 就已经可以使用的了。而在Apache2.2版本的中(如 RHEL 6， CentOS 6，Ubuntu 12.04 Precise) mod_proxy_fcgi 是另外的安装包，在 RHEL6/CentOS6, 在EPEL6 版本中  可以使用 yum install mod_proxy_fcgi. Ubuntu 12.04, 似乎又问题。
 
-![详情见](https://bugs.launchpad.net/precise-backports/+bug/1422417)
+[详情见](https://bugs.launchpad.net/precise-backports/+bug/1422417)
 
 ## 安装Apache
 
@@ -27,9 +27,6 @@ Ubuntu 14.04 (Debian)
 Apache 的配置文件在/etc/apache2/apache2.conf, 需要添加ServerName  
 即主机的全称域名FQDN.(eg, hostname -f).
 
-```
-
-``` 
 
 加mod_proxy_fcgi模块  
 **sudo a2enmod proxy_fcgi**
@@ -46,9 +43,11 @@ Apache 的配置文件在/etc/apache2/apache2.conf, 需要添加ServerName
 **sudo a2enmod ssl**
 
 生成证书：
+
+```
 sudo mkdir /etc/apache2/ssl
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout \  
-/etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
+```
 
 重启Apache：  
 sudo service apache2 restart
@@ -94,11 +93,13 @@ sudo ceph-authtool /etc/ceph/ceph.client.radosgw.keyring -n client.radosgw.gatew
 ```
 sudo ceph-authtool -n client.radosgw.gateway --cap osd 'allow rwx' --cap mon 'allow rwx' /etc/ceph/ceph.client.radosgw.keyring
 ```
+
 #### 需要是创建的keyring和key能够让对象网关可以访问Ceph集群，
 需要将key加入到Ceph集群中。
 ```
 sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.gateway -i /etc/ceph/ceph.client.radosgw.keyring
 ``` 
+
 #### 如果管理节点不是网关所在的主机，需要将keyring放到对应的目录下  
 如果在同一个主机上就不用了。  
 
@@ -126,10 +127,8 @@ sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.gateway
 **ceph osd lspools**   
 
 ### 在Ceph配置中添加网关
-在管理节点为Ceph的配置文件添加对象网关的配置。对象网关的配置要求你区别对象网关的实例。  
-在安装对象网关deamon时需要指定主机名，keyring, 为FastCGI的socket路径，日志文件。  
-不同Apache版本配置时参数是不一样的。我的环境是Ubuntu 14.04, Apache 2.4.7.  
-* 在Apache2.2和Apache2.4的早期版本(RHEL 6, Ubuntu 12.04, 14.04), 在/etc/ceph/ceph.conf添加：  
+在管理节点为Ceph的配置文件添加对象网关的配置。对象网关的配置要求你区别对象网关的实例。在安装对象网关deamon时需要指定主机名，keyring, 为FastCGI的socket路径，日志文件。不同Apache版本配置时参数是不一样的。我的环境是Ubuntu 14.04, Apache 2.4.7. 在Apache2.2和Apache2.4的早期版本(RHEL 6, Ubuntu 12.04, 14.04), 在/etc/ceph/ceph.conf添加：  
+
 ```
 [client.radosgw.gateway]
 host = {hostname}
@@ -139,11 +138,13 @@ log file = /var/log/radosgw/client.radosgw.gateway.log
 rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0
 rgw print continue = false
 ```
+
 **注:**
 **Apache2.2和Apache2.4的早期版本不是使用Unix Domain Sockets而是localhost TCP。**   
 
 下面是针对于其他版本下的，主要的区别就是支持UDS, 所以配置文件不同。  
 在Apache2.4.9后的版本(RHEL 7, CentOS7)，在/etc/ceph/ceph.conf添加:  
+
 ```
 [client.radosgw.gateway]
 host = {hostname}
@@ -152,21 +153,25 @@ rgw socket path = /var/run/ceph/ceph.radosgw.gateway.fastcgi.sock
 log file = /var/log/radosgw/client.radosgw.gateway.log
 rgw print continue = false
 ```
+
 **注:**
 **Apache2.4.9支持Unix Domain Socket(UDS), 但是Ubuntu 14.04　安装的是Apache2.4.7.   
 所以不支持UDS, 而是配置为localhost TCP.**  
 {hostname} 是提供网关服务的短的主机域名(hostname -s 的输出)。  
 
 由于Ceph中默认的日志级别不高，所以可以在ceph.conf中添加:  
+
 ```
 [global]
 debug ms = 1
 debug rgw = 20
 ```
+
 但是这样日志量会有点大, 如果是docker部署的话，docker的日志现在没有支持清除。  
 
 ### 创建数据目录
-配置文件默认不用创建网关的数据目录，所以需要手动创建。  
+配置文件默认不用创建网关的数据目录，所以需要手动创建。
+
 ```
 sudo mkdir -p /var/lib/ceph/radosgw/ceph-radosgw.gateway
 ```
@@ -224,6 +229,7 @@ ProxyPass / unix:///var/run/ceph/ceph.radosgw.gateway.fastcgi.sock|fcgi://localh
 ```
 sudo radosgw-admin user create --uid="testuser" --display-name="First User"
 ```
+
 输出的结果如下：
 
 ```
@@ -259,6 +265,7 @@ sudo radosgw-admin user create --uid="testuser" --display-name="First User"
 
 要用S3访问网关，需要提供aws_access_key_id 和aws_secret_access_key和网关的hostname。  
 新建s3test.py, 加入：  
+
 ```
 import boto
 import boto.s3.connection
